@@ -83,7 +83,6 @@
             scroll-behavior: smooth;
         }
 
-        /* 消息气泡 - 极简黑白灰 */
         .message-wrapper {
             display: flex;
             width: 100%;
@@ -123,7 +122,6 @@
             border: 1px solid #2c2c2c;
         }
 
-        /* 删除按钮 - 悬停/长按显示 */
         .delete-btn {
             opacity: 0;
             background: none;
@@ -148,7 +146,6 @@
             color: #ff6b6b;
         }
 
-        /* 警告条 */
         .warning-badge {
             background: #2c2c2c;
             color: #ffb347;
@@ -161,7 +158,6 @@
             border: 1px solid #3a3a3a;
         }
 
-        /* 输入区域 */
         .input-area {
             background: #0d0d0d;
             padding: 14px 16px;
@@ -208,7 +204,6 @@
             color: white;
         }
 
-        /* 设置面板 - 深色高级 */
         .settings-panel {
             position: fixed;
             top: 0;
@@ -292,7 +287,6 @@
             text-align: center;
         }
 
-        /* 滚动条 */
         .chat-container::-webkit-scrollbar {
             width: 4px;
         }
@@ -309,7 +303,7 @@
     <div class="header">
         <div class="header-title">
             <h1>DeepSeek</h1>
-            <span class="token-badge" id="tokenCount">0 tok</span>
+            <span class="token-badge" id="tokenCount">0 tok (0%)</span>
         </div>
         <button class="settings-btn" onclick="openSettings()">⚙️</button>
     </div>
@@ -317,11 +311,10 @@
     <div class="chat-container" id="chatContainer"></div>
 
     <div class="input-area">
-        <textarea id="messageInput" placeholder="输入消息... (↵ 发送, Shift+↵ 换行)" rows="1"></textarea>
+        <textarea id="messageInput" placeholder="输入消息... (↵ 换行, Shift+↵ 发送)" rows="1"></textarea>
         <button onclick="sendMessage()">发送</button>
     </div>
 
-    <!-- 设置面板 -->
     <div class="settings-panel" id="settingsPanel">
         <div class="settings-card">
             <h3>⚙️ 设置</h3>
@@ -358,10 +351,10 @@
 
         function updateTokenDisplay() {
             const total = calculateTotalTokens();
-            const percent = (total / MAX_CONTEXT * 100).toFixed(0);
+            const percent = (total / MAX_CONTEXT * 100).toFixed(1);
             const tokenElem = document.getElementById('tokenCount');
             if (tokenElem) {
-                tokenElem.textContent = `${total} tok`;
+                tokenElem.textContent = `${total} tok (${percent}%)`;
                 if (total > MAX_CONTEXT * 0.85) tokenElem.style.color = '#ff8888';
                 else if (total > MAX_CONTEXT * 0.6) tokenElem.style.color = '#ffb347';
                 else tokenElem.style.color = '#aaa';
@@ -438,7 +431,6 @@
             }
         }
 
-        // 删除单条消息
         function deleteMessage(index) {
             if (confirm('删除这条消息？')) {
                 messages.splice(index, 1);
@@ -574,13 +566,19 @@
             ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
         }
 
+        // 回车 = 换行，Shift+回车 = 发送
         document.getElementById('messageInput').addEventListener('input', autoResizeTextarea);
         document.getElementById('messageInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
+                // 回车：换行（不做任何事，让默认换行生效）
+                return;
+            }
+            if (e.key === 'Enter' && e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
             }
         });
+
         document.getElementById('settingsPanel').addEventListener('click', (e) => {
             if (e.target === document.getElementById('settingsPanel')) closeSettings();
         });
