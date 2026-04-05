@@ -3,231 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>DeepSeek 智能助手</title>
+    <title>DeepSeek | 极简助手</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
-            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #1a1a1a;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            color: #e0e0e0;
         }
-        /* 头部 */
+
+        /* 头部 - 高级黑 */
         .header {
-            background: #1e6f3f;
-            color: white;
-            padding: 16px 20px;
-            font-size: 18px;
-            font-weight: 600;
+            background: #0d0d0d;
+            padding: 18px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-bottom: 1px solid #2a2a2a;
+            backdrop-filter: blur(10px);
             flex-shrink: 0;
         }
+
         .header-title {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
         }
+
+        .header-title h1 {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: -0.3px;
+            color: #f5f5f5;
+        }
+
         .token-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: normal;
+            background: #1e1e1e;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 500;
+            font-family: monospace;
+            color: #aaa;
+            border: 1px solid #2e2e2e;
         }
+
         .settings-btn {
             background: none;
             border: none;
-            color: white;
+            color: #ccc;
             font-size: 22px;
             cursor: pointer;
-            padding: 0 8px;
+            padding: 8px;
+            border-radius: 12px;
+            transition: background 0.2s;
         }
+
+        .settings-btn:active {
+            background: #2a2a2a;
+        }
+
         /* 聊天区域 */
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: 20px 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
+            scroll-behavior: smooth;
         }
+
+        /* 消息气泡 - 极简黑白灰 */
+        .message-wrapper {
+            display: flex;
+            width: 100%;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .message-wrapper.user {
+            justify-content: flex-end;
+        }
+
+        .message-wrapper.assistant {
+            justify-content: flex-start;
+        }
+
         .message {
-            max-width: 85%;
+            max-width: 82%;
             padding: 12px 16px;
-            border-radius: 20px;
-            line-height: 1.4;
+            border-radius: 24px;
+            line-height: 1.45;
+            font-size: 15px;
             word-wrap: break-word;
             white-space: pre-wrap;
+            position: relative;
         }
-        .user {
-            background: #1e6f3f;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
+
+        .user .message {
+            background: #2a2a2a;
+            color: #f0f0f0;
+            border-bottom-right-radius: 6px;
         }
-        .assistant {
-            background: white;
-            color: #333;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+
+        .assistant .message {
+            background: #1e1e1e;
+            color: #e0e0e0;
+            border-bottom-left-radius: 6px;
+            border: 1px solid #2c2c2c;
         }
-        .loading {
-            background: #e0e0e0;
-            color: #666;
-            align-self: flex-start;
-            font-style: italic;
+
+        /* 删除按钮 - 悬停/长按显示 */
+        .delete-btn {
+            opacity: 0;
+            background: none;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+            color: #888;
+            transition: all 0.2s;
+            margin-left: 8px;
+            align-self: center;
         }
+
+        .message-wrapper:hover .delete-btn,
+        .delete-btn:active {
+            opacity: 1;
+        }
+
+        .delete-btn:active {
+            background: #2c2c2c;
+            color: #ff6b6b;
+        }
+
+        /* 警告条 */
         .warning-badge {
-            background: #ff9800;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
+            background: #2c2c2c;
+            color: #ffb347;
+            padding: 8px 16px;
+            border-radius: 12px;
             font-size: 12px;
             margin: 8px 16px;
             text-align: center;
             cursor: pointer;
+            border: 1px solid #3a3a3a;
         }
+
         /* 输入区域 */
         .input-area {
-            background: white;
-            padding: 12px 16px;
+            background: #0d0d0d;
+            padding: 14px 16px;
             display: flex;
-            gap: 10px;
-            border-top: 1px solid #ddd;
+            gap: 12px;
+            border-top: 1px solid #2a2a2a;
             flex-shrink: 0;
+            backdrop-filter: blur(10px);
         }
+
         .input-area textarea {
             flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 12px 16px;
+            border: 1px solid #2c2c2c;
+            border-radius: 28px;
+            font-size: 15px;
             outline: none;
             resize: none;
             font-family: inherit;
             max-height: 100px;
+            background: #141414;
+            color: #f0f0f0;
+            transition: border 0.2s;
         }
+
+        .input-area textarea:focus {
+            border-color: #555;
+        }
+
         .input-area button {
-            background: #1e6f3f;
-            color: white;
+            background: #2a2a2a;
+            color: #ddd;
             border: none;
-            padding: 0 20px;
-            border-radius: 25px;
-            font-size: 16px;
+            padding: 0 24px;
+            border-radius: 32px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
         }
-        /* 设置面板 */
+
+        .input-area button:active {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        /* 设置面板 - 深色高级 */
         .settings-panel {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
+
         .settings-card {
-            background: white;
-            width: 85%;
-            border-radius: 16px;
-            padding: 20px;
-            max-height: 80%;
-            overflow-y: auto;
+            background: #121212;
+            width: 86%;
+            border-radius: 28px;
+            padding: 24px;
+            border: 1px solid #2c2c2c;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
+
         .settings-card h3 {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 20px;
+            color: #f5f5f5;
         }
+
+        .settings-card label {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 6px;
+            display: block;
+        }
+
         .settings-card input, .settings-card select {
             width: 100%;
             padding: 12px;
-            margin: 8px 0 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            margin: 6px 0 18px;
+            border: 1px solid #2c2c2c;
+            border-radius: 14px;
+            background: #1a1a1a;
+            color: #e0e0e0;
             font-size: 14px;
         }
+
         .settings-card button {
-            background: #1e6f3f;
+            background: #2a2a2a;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
             margin-bottom: 10px;
+            transition: background 0.2s;
         }
+
+        .settings-card button:active {
+            background: #3a3a3a;
+        }
+
         .danger-btn {
-            background: #dc3545 !important;
+            background: #2a1a1a !important;
+            color: #ff8888 !important;
         }
+
         .secondary-btn {
-            background: #6c757d !important;
+            background: #1a1a1a !important;
+            border: 1px solid #2c2c2c !important;
         }
+
         .api-hint {
-            font-size: 12px;
+            font-size: 11px;
             color: #666;
-            margin-top: 8px;
+            margin-top: 12px;
             text-align: center;
         }
-        .conversation-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin: 10px 0;
+
+        /* 滚动条 */
+        .chat-container::-webkit-scrollbar {
+            width: 4px;
         }
-        .conv-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .chat-container::-webkit-scrollbar-track {
+            background: #1a1a1a;
         }
-        .conv-item:last-child {
-            border-bottom: none;
-        }
-        .conv-name {
-            flex: 1;
-            cursor: pointer;
-        }
-        .conv-delete {
-            background: none;
-            border: none;
-            color: #dc3545;
-            font-size: 18px;
-            cursor: pointer;
-            width: auto;
-            padding: 0 8px;
-            margin: 0;
+        .chat-container::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-title">
-            <span>🤖 DeepSeek</span>
-            <span class="token-badge" id="tokenCount">0 tokens</span>
+            <h1>DeepSeek</h1>
+            <span class="token-badge" id="tokenCount">0 tok</span>
         </div>
         <button class="settings-btn" onclick="openSettings()">⚙️</button>
     </div>
 
-    <div class="chat-container" id="chatContainer">
-        <div class="message assistant">你好！我是DeepSeek助手。请先点击右上角⚙️设置你的API Key。</div>
-    </div>
+    <div class="chat-container" id="chatContainer"></div>
 
     <div class="input-area">
-        <textarea id="messageInput" placeholder="输入消息... (Shift+Enter换行，Enter发送)" rows="1"></textarea>
+        <textarea id="messageInput" placeholder="输入消息... (↵ 发送, Shift+↵ 换行)" rows="1"></textarea>
         <button onclick="sendMessage()">发送</button>
     </div>
 
@@ -235,259 +325,210 @@
     <div class="settings-panel" id="settingsPanel">
         <div class="settings-card">
             <h3>⚙️ 设置</h3>
-            
-            <label>DeepSeek API Key</label>
+            <label>API Key</label>
             <input type="password" id="apiKeyInput" placeholder="sk-xxxxx">
             <button onclick="saveApiKey()">保存</button>
             
-            <label>最大保留消息数 (超限自动删除最早消息)</label>
+            <label>最大保留消息数</label>
             <select id="maxMessagesSelect">
-                <option value="20">20条 (约2-3万tokens)</option>
-                <option value="30">30条 (约4-5万tokens)</option>
-                <option value="50" selected>50条 (约8-10万tokens，推荐)</option>
-                <option value="80">80条 (约13万tokens，接近上限)</option>
+                <option value="20">20条 (紧凑)</option>
+                <option value="40">40条 (平衡)</option>
+                <option value="60" selected>60条 (推荐)</option>
+                <option value="80">80条 (极限)</option>
             </select>
             
-            <button onclick="exportChat()">📁 导出当前对话</button>
-            <button onclick="clearChat()" class="danger-btn">🗑️ 清空当前对话</button>
+            <button onclick="exportChat()">📁 导出对话</button>
+            <button onclick="clearChat()" class="danger-btn">🗑️ 清空所有</button>
             <button onclick="closeSettings()" class="secondary-btn">关闭</button>
-            
-            <div class="api-hint">
-                💡 提示：对话超过80%时会自动警告<br>
-                超过上限时会自动删除最早的消息
-            </div>
+            <div class="api-hint">长按消息可删除 · 自动防超限</div>
         </div>
     </div>
 
     <script>
         let messages = [];
-        const MAX_CONTEXT = 131072; // DeepSeek最大上下文
+        const MAX_CONTEXT = 131072;
 
-        // 简单的token估算 (约1个token=0.75个中文字符)
         function estimateTokens(text) {
             return Math.ceil(text.length * 1.3);
         }
 
-        // 计算所有消息的总token数
         function calculateTotalTokens() {
-            let total = 0;
-            for (let msg of messages) {
-                total += estimateTokens(msg.content);
-            }
-            return total;
+            return messages.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
         }
 
-        // 更新显示的token数
         function updateTokenDisplay() {
             const total = calculateTotalTokens();
-            const percent = (total / MAX_CONTEXT * 100).toFixed(1);
+            const percent = (total / MAX_CONTEXT * 100).toFixed(0);
             const tokenElem = document.getElementById('tokenCount');
             if (tokenElem) {
-                tokenElem.textContent = `${total} / ${MAX_CONTEXT} tokens (${percent}%)`;
-                if (total > MAX_CONTEXT * 0.9) {
-                    tokenElem.style.background = '#dc3545';
-                } else if (total > MAX_CONTEXT * 0.7) {
-                    tokenElem.style.background = '#ff9800';
-                } else {
-                    tokenElem.style.background = 'rgba(255,255,255,0.2)';
-                }
+                tokenElem.textContent = `${total} tok`;
+                if (total > MAX_CONTEXT * 0.85) tokenElem.style.color = '#ff8888';
+                else if (total > MAX_CONTEXT * 0.6) tokenElem.style.color = '#ffb347';
+                else tokenElem.style.color = '#aaa';
             }
-            
-            // 检查是否超过90%
-            if (total > MAX_CONTEXT * 0.9) {
-                showWarning();
-            }
-            
+            if (total > MAX_CONTEXT * 0.85) showWarning();
+            else removeWarning();
             return total;
         }
 
-        // 显示警告
         function showWarning() {
-            const container = document.getElementById('chatContainer');
-            const existingWarning = document.querySelector('.warning-badge');
-            if (!existingWarning) {
+            if (!document.querySelector('.warning-badge')) {
+                const container = document.getElementById('chatContainer');
                 const warning = document.createElement('div');
                 warning.className = 'warning-badge';
-                warning.innerHTML = '⚠️ 对话接近长度限制，建议清空或导出对话 ⚠️';
+                warning.innerHTML = '⚠️ 接近上下文上限 · 建议清空或导出';
                 warning.onclick = () => openSettings();
                 container.insertBefore(warning, container.firstChild);
             }
         }
 
-        // 移除警告
         function removeWarning() {
-            const warning = document.querySelector('.warning-badge');
-            if (warning) warning.remove();
+            const warn = document.querySelector('.warning-badge');
+            if (warn) warn.remove();
         }
 
-        // 自动截断消息（超限时删除最早的消息）
-        function autoTruncateIfNeeded() {
-            const maxMessages = parseInt(document.getElementById('maxMessagesSelect')?.value || 50);
-            
-            // 按消息数量截断
-            while (messages.length > maxMessages) {
-                messages.shift();
-            }
-            
-            // 按token数截断
+        function autoTruncate() {
+            const maxMsgs = parseInt(document.getElementById('maxMessagesSelect')?.value || 60);
+            while (messages.length > maxMsgs) messages.shift();
             let total = calculateTotalTokens();
-            let truncated = false;
-            while (total > MAX_CONTEXT - 5000 && messages.length > 1) {
+            while (total > MAX_CONTEXT - 4000 && messages.length > 1) {
                 messages.shift();
                 total = calculateTotalTokens();
-                truncated = true;
             }
-            
-            if (truncated) {
-                addSystemMessage('⚠️ 对话过长，已自动删除最早的消息以继续对话');
-            }
-            
             saveChatHistory();
             renderMessages();
             updateTokenDisplay();
         }
 
-        // 添加系统消息（不保存到历史）
         function addSystemMessage(content) {
             const container = document.getElementById('chatContainer');
             const div = document.createElement('div');
-            div.className = 'message assistant';
-            div.textContent = content;
+            div.className = 'message-wrapper assistant';
+            div.innerHTML = `<div class="message">${content}</div>`;
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
 
-        // 加载保存的API Key
-        function loadApiKey() {
-            const key = localStorage.getItem('deepseek_api_key');
-            if (key) {
-                document.getElementById('apiKeyInput').value = key;
-            }
-        }
-
-        // 保存API Key
         function saveApiKey() {
             const key = document.getElementById('apiKeyInput').value.trim();
             if (key) {
                 localStorage.setItem('deepseek_api_key', key);
                 closeSettings();
-                addSystemMessage('✅ API Key已保存，现在可以开始对话了！');
-            } else {
-                alert('请输入有效的API Key');
-            }
+                addSystemMessage('✓ API Key 已保存');
+            } else alert('请输入有效的 Key');
         }
 
-        // 加载保存的对话历史
+        function loadApiKey() {
+            const key = localStorage.getItem('deepseek_api_key');
+            if (key) document.getElementById('apiKeyInput').value = key;
+        }
+
+        function saveChatHistory() {
+            localStorage.setItem('deepseek_chat_history', JSON.stringify(messages));
+        }
+
         function loadChatHistory() {
             const saved = localStorage.getItem('deepseek_chat_history');
             if (saved) {
                 messages = JSON.parse(saved);
                 renderMessages();
                 updateTokenDisplay();
-                removeWarning();
             } else {
                 messages = [];
             }
         }
 
-        // 保存对话历史
-        function saveChatHistory() {
-            localStorage.setItem('deepseek_chat_history', JSON.stringify(messages));
-        }
-
-        // 清空对话
-        function clearChat() {
-            if (confirm('确定要清空所有对话吗？建议先导出备份。')) {
-                messages = [];
+        // 删除单条消息
+        function deleteMessage(index) {
+            if (confirm('删除这条消息？')) {
+                messages.splice(index, 1);
                 saveChatHistory();
                 renderMessages();
                 updateTokenDisplay();
-                removeWarning();
-                addSystemMessage('对话已清空！有什么我可以帮你的吗？');
+                autoTruncate();
             }
         }
 
-        // 导出对话
-        function exportChat() {
-            if (messages.length === 0) {
-                alert('没有对话可导出');
-                return;
-            }
-            
-            let exportText = 'DeepSeek 对话导出\n';
-            exportText += `导出时间: ${new Date().toLocaleString()}\n`;
-            exportText += '='.repeat(50) + '\n\n';
-            
-            for (let msg of messages) {
-                const role = msg.role === 'user' ? '用户' : 'DeepSeek';
-                exportText += `【${role}】\n${msg.content}\n\n`;
-            }
-            
-            const blob = new Blob([exportText], {type: 'text/plain'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `deepseek_chat_${Date.now()}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            addSystemMessage('✅ 对话已导出到文件');
+        function renderMessages() {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = '';
+            messages.forEach((msg, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = `message-wrapper ${msg.role}`;
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message';
+                msgDiv.textContent = msg.content;
+                const delBtn = document.createElement('button');
+                delBtn.textContent = '✕';
+                delBtn.className = 'delete-btn';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteMessage(idx);
+                };
+                wrapper.appendChild(msgDiv);
+                wrapper.appendChild(delBtn);
+                container.appendChild(wrapper);
+            });
+            container.scrollTop = container.scrollHeight;
         }
 
-        // 添加消息并渲染
         function addMessage(role, content, save = true) {
             messages.push({ role, content });
             if (save) saveChatHistory();
             renderMessages();
             updateTokenDisplay();
-            autoTruncateIfNeeded();
+            autoTruncate();
         }
 
-        // 渲染所有消息
-        function renderMessages() {
-            const container = document.getElementById('chatContainer');
-            container.innerHTML = '';
-            for (let msg of messages) {
-                const div = document.createElement('div');
-                div.className = `message ${msg.role}`;
-                div.textContent = msg.content;
-                container.appendChild(div);
+        function clearChat() {
+            if (confirm('清空所有对话？建议先导出。')) {
+                messages = [];
+                saveChatHistory();
+                renderMessages();
+                updateTokenDisplay();
+                removeWarning();
+                addSystemMessage('对话已清空');
             }
-            container.scrollTop = container.scrollHeight;
         }
 
-        // 发送消息
+        function exportChat() {
+            if (!messages.length) return alert('无对话');
+            let text = `DeepSeek 导出 · ${new Date().toLocaleString()}\n${'='.repeat(50)}\n\n`;
+            for (let msg of messages) {
+                text += `【${msg.role === 'user' ? '我' : 'DeepSeek'}】\n${msg.content}\n\n`;
+            }
+            const blob = new Blob([text], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `deepseek_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+            addSystemMessage('✓ 已导出');
+        }
+
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             if (!text) return;
-
             const apiKey = localStorage.getItem('deepseek_api_key');
             if (!apiKey) {
-                alert('请先设置API Key');
+                alert('请先设置 API Key');
                 openSettings();
                 return;
             }
 
-            // 添加用户消息
             addMessage('user', text);
             input.value = '';
             input.style.height = 'auto';
 
-            // 显示加载中
-            const loadingMsg = { role: 'assistant', content: '思考中...' };
-            const loadingIndex = messages.length;
+            const loadingMsg = { role: 'assistant', content: '...' };
+            const loadingIdx = messages.length;
             messages.push(loadingMsg);
             renderMessages();
 
             try {
-                // 准备发送的消息（过滤掉loading状态）
-                const sendMessages = messages.filter(m => m.role !== 'loading').map(m => ({
-                    role: m.role,
-                    content: m.content
-                }));
-
-                const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                const sendMessages = messages.filter(m => m.content !== '...').map(m => ({ role: m.role, content: m.content }));
+                const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -499,87 +540,54 @@
                         stream: false
                     })
                 });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error?.message || '请求失败');
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error?.message || '请求失败');
                 }
-
-                const data = await response.json();
+                const data = await res.json();
                 const reply = data.choices[0].message.content;
-
-                // 替换加载消息
-                messages[loadingIndex] = { role: 'assistant', content: reply };
+                messages[loadingIdx] = { role: 'assistant', content: reply };
                 saveChatHistory();
                 renderMessages();
                 updateTokenDisplay();
-
-            } catch (error) {
-                console.error('Error:', error);
-                let errorMsg = error.message;
-                if (errorMsg.includes('context length')) {
-                    errorMsg = '对话过长！请点击右上角⚙️ → 清空当前对话后重试。';
-                }
-                messages[loadingIndex] = { role: 'assistant', content: `❌ 错误: ${errorMsg}` };
+            } catch (err) {
+                messages[loadingIdx] = { role: 'assistant', content: `❌ ${err.message}` };
                 renderMessages();
             }
         }
 
-        // 设置面板控制
         function openSettings() {
             document.getElementById('settingsPanel').style.display = 'flex';
-            // 加载当前设置
             const savedMax = localStorage.getItem('deepseek_max_messages');
-            if (savedMax) {
-                document.getElementById('maxMessagesSelect').value = savedMax;
-            }
+            if (savedMax) document.getElementById('maxMessagesSelect').value = savedMax;
         }
-        
         function closeSettings() {
             document.getElementById('settingsPanel').style.display = 'none';
-            // 保存最大消息数设置
-            const maxMsg = document.getElementById('maxMessagesSelect').value;
-            localStorage.setItem('deepseek_max_messages', maxMsg);
-            autoTruncateIfNeeded();
+            const maxVal = document.getElementById('maxMessagesSelect').value;
+            localStorage.setItem('deepseek_max_messages', maxVal);
+            autoTruncate();
         }
 
-        // 自动调整textarea高度
         function autoResizeTextarea() {
-            const textarea = document.getElementById('messageInput');
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+            const ta = document.getElementById('messageInput');
+            ta.style.height = 'auto';
+            ta.style.height = Math.min(ta.scrollHeight, 100) + 'px';
         }
 
-        // 监听textarea输入
         document.getElementById('messageInput').addEventListener('input', autoResizeTextarea);
-        
-        // 发送消息（Enter发送，Shift+Enter换行）
-        document.getElementById('messageInput').addEventListener('keydown', function(e) {
+        document.getElementById('messageInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
             }
         });
-
-        // 点击背景关闭
-        document.getElementById('settingsPanel').addEventListener('click', function(e) {
-            if (e.target === this) closeSettings();
+        document.getElementById('settingsPanel').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('settingsPanel')) closeSettings();
         });
 
-        // 初始化
         loadApiKey();
         loadChatHistory();
-        
-        // 加载保存的最大消息数设置
-        const savedMax = localStorage.getItem('deepseek_max_messages');
-        if (savedMax) {
-            document.getElementById('maxMessagesSelect').value = savedMax;
-        }
-
-        // 如果没有消息，添加欢迎语
-        if (messages.length === 0) {
-            addMessage('assistant', '你好！我是DeepSeek助手。请先点击右上角⚙️设置你的API Key。');
-        }
+        if (messages.length === 0) addMessage('assistant', '你好，我是 DeepSeek。黑白之间，只专注对话。');
     </script>
 </body>
 </html>
